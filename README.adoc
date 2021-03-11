@@ -69,6 +69,14 @@ helm version --short
 v3.5.2+g167aac7
 ----
 
+.Helm ingress status, which was deployed by Terraform
+----
+helm list -A
+NAME   	NAMESPACE	REVISION	UPDATED                             	STATUS  	CHART               	APP VERSION
+ingress	default  	1       	2021-03-10 18:28:37.546267 -0800 PST	deployed	nginx-ingress-1.41.3	v0.34.1
+----
+
+
 NOTE: Keep in mind that if you do not expose the service you will get a 404 since the nginx controller does not know about the pods ports. This is using the Cluster IP.
 
 Now apply the manifests
