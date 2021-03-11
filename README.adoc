@@ -9,6 +9,8 @@ Before you start make sure you change the variable name:
 ** aks_cluster_name which is now set to *aks-cluster-remo-v2*
 
 
+NOTE: My prompt starts with ➜ 
+
 You can preview the changes with:
 
 
@@ -16,47 +18,47 @@ It will use a simple container for now which bashes back the text from the manif
 
 .Plan your terraform
 ----
-terraform plan
+➜ terraform plan
 ----
 
 You can apply the changes with:
 
 .Apply your terraform
 ----
-terraform apply
+➜ terraform apply
 ----
 
 Once provisioned, you can export the kubeconfig with:
 
 .Terraform Output
 ----
-terraform output |grep -v EOT > azurek8s
+➜ terraform output |grep -v EOT > azurek8s
 ----
 
 You can add the credentials to your kubeconfig or temporarily use the file as your kubeconfig with:
 
 .Export the certs
 ----
-export KUBECONFIG="${PWD}/azurek8s"
+➜ export KUBECONFIG="${PWD}/azurek8s"
 ----
 
 
 Set your kubectl alias to k8s
 
 ----
-alias k8="kubectl"
+➜ alias k8="kubectl"
 ----
 
 You can verify that you can connect to the cluster with:
 
 .Get Nodes
 ----
-k8 get nodes
+➜ k8 get nodes
 ----
 
 .Check Kubernetes version
 ----
-k8 version --short
+➜ k8 version --short
 Client Version: v1.19.3
 Server Version: v1.19.7
 ----
@@ -65,13 +67,13 @@ Since we installed helm let's check that as well
 We will see the controller list below
 .Helm check
 ----
-helm version --short
+➜ helm version --short
 v3.5.2+g167aac7
 ----
 
 .Helm ingress status, which was deployed by Terraform
 ----
-helm list -A
+➜ helm list -A
 NAME   	NAMESPACE	REVISION	UPDATED                             	STATUS  	CHART               	APP VERSION
 ingress	default  	1       	2021-03-10 18:28:37.546267 -0800 PST	deployed	nginx-ingress-1.41.3	v0.34.1
 ----
@@ -83,21 +85,21 @@ Now apply the manifests
 
 .Manifests
 ----
-k8 apply -f kube-manifests/nginx-deploy-green.yml -f kube-manifests/nginx-deploy-blue.yml -f kube-manifests/nginx-deploy-main.yml
+➜ k8 apply -f kube-manifests/nginx-deploy-green.yml -f kube-manifests/nginx-deploy-blue.yml -f kube-manifests/nginx-deploy-main.yml
 ----
 
 .Expose the pods
 ----
-k8 expose deploy nginx-deploy-main --port 80
-k8 expose deploy nginx-deploy-green --port 80
-k8 expose deploy nginx-deploy-blue --port 80
+➜ k8 expose deploy nginx-deploy-main --port 80
+➜ k8 expose deploy nginx-deploy-green --port 80
+➜ k8 expose deploy nginx-deploy-blue --port 80
 ----
 
 Once applied the manifests check the nodes, services, and deployments.
 
 .Fastest way to get all the data needed
 ----
-k8 get all -A
+➜ k8 get all -A
 ----
 
 .Output
