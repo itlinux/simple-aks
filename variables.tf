@@ -16,13 +16,13 @@ variable "my_tags" {
 }
 
 variable  dns_prefix {
-  description = "DNS Prefix"
-  default =  "aks-v2"
+  description = "DNS Prefix, it does have a charather limitation"
+  default =  "rmaks"
 }
 
 variable pool_name {
-  description = "Pool Name"
-  default = "aksv2"
+  description = "Pool Name does have a charather limitation"
+  default = "rmaks"
 }
 
 variable node_count {
@@ -35,11 +35,11 @@ variable vm_size {
   default =  "Standard_D2s_v3"
 }
 variable aks_cluster_name {
-  default = "aks-cluster-remo-v2"
+  default = "aks-cluster-remo"
 }
 
 variable name_cluster_rg {
-  default = "akscluster"
+  default = "remo-aks-cluster"
   description = "RG name"
 }
 variable name_cluster {
@@ -50,7 +50,3 @@ variable k8s_version {
   description = "K8s version to use"
   default = "1.19.7"
 }
-# variable loadbalancerrg_aks {
-#   description = "LB Frontend"
-#   default     = "frontLB"
-# }
