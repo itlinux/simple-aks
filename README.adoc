@@ -88,6 +88,18 @@ Now apply the manifests
 ➜ k8 apply -f kube-manifests/nginx-deploy-green.yml -f kube-manifests/nginx-deploy-blue.yml -f kube-manifests/nginx-deploy-main.yml
 ----
 
+.Add the ingress
+----
+➜ k8 apply -f kube-manifests/ingress-resource-2.yml
+----
+
+.Check ingress 
+----
+Warning: extensions/v1beta1 Ingress is deprecated in v1.14+, unavailable in v1.22+; use networking.k8s.io/v1 Ingress
+NAME                 CLASS    HOSTS                                                  ADDRESS      PORTS   AGE
+ingress-resource-2   <none>   nginx.remo.io,blue.nginx.remo.io,green.nginx.remo.io   10.240.0.4   80      108m
+----
+
 .Expose the pods
 ----
 ➜ k8 expose deploy nginx-deploy-main --port 80
