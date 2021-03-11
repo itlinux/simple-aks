@@ -30,7 +30,7 @@ Once provisioned, you can export the kubeconfig with:
 
 .Terraform Output
 ----
-echo "$(terraform output kube_config|grep -v EOT)" > azurek8s
+terraform output |grep -v EOT > azurek8s
 ----
 
 You can add the credentials to your kubeconfig or temporarily use the file as your kubeconfig with:
