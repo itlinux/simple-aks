@@ -1,0 +1,244 @@
+= Provisioning an Azure Kubernetes Service (AKS) cluster
+This does not use the ACR (Azure Container Registry)
+
+Before you start make sure you change the variable name:
+
+** name_cluster_rg which is now set to "akscluster"
+** "my_tags" which have a map listed
+** dns_prefix now set to aks-v2
+** aks_cluster_name which is now set to *aks-cluster-remo-v2*
+
+
+You can preview the changes with:
+
+
+It will use a simple container for now which bashes back the text from the manifest.
+
+.Plan your terraform
+----
+terraform plan
+----
+
+You can apply the changes with:
+
+.Apply your terraform
+----
+terraform apply
+----
+
+Once provisioned, you can export the kubeconfig with:
+
+.Terraform Output
+----
+echo "$(terraform output kube_config|grep -v EOT)" > azurek8s
+----
+
+You can add the credentials to your kubeconfig or temporarily use the file as your kubeconfig with:
+
+.Export the certs
+----
+export KUBECONFIG="${PWD}/azurek8s"
+----
+
+
+Set your kubectl alias to k8s
+
+----
+alias k8="kubectl"
+----
+
+You can verify that you can connect to the cluster with:
+
+.Get Nodes
+----
+k8 get nodes
+----
+
+.Check Kubernetes version
+----
+k8 version --short
+Client Version: v1.19.3
+Server Version: v1.19.7
+----
+
+Since we installed helm let's check that as well
+We will see the controller list below
+.Helm check
+----
+helm version --short
+v3.5.2+g167aac7
+----
+
+NOTE: Keep in mind that if you do not expose the service you will get a 404 since the nginx controller does not know about the pods ports. This is using the Cluster IP.
+
+Now apply the manifests
+
+.Manifests
+----
+k8 apply -f kube-manifests/nginx-deploy-green.yml -f kube-manifests/nginx-deploy-blue.yml -f kube-manifests/nginx-deploy-main.yml
+----
+
+.Expose the pods
+----
+k8 expose deploy nginx-deploy-main --port 80
+k8 expose deploy nginx-deploy-green --port 80
+k8 expose deploy nginx-deploy-blue --port 80
+----
+
+Once applied the manifests check the nodes, services, and deployments.
+
+.Fastest way to get all the data needed
+----
+k8 get all -A
+----
+
+.Output
+----
+➜ k8 get all -A
+NAMESPACE     NAME                                                       READY   STATUS    RESTARTS   AGE
+default       pod/ingress-nginx-ingress-controller-547f4c7d8b-hlhws      1/1     Running   0          40m
+default       pod/ingress-nginx-ingress-default-backend-c9b59c85-kr782   1/1     Running   0          40m
+default       pod/nginx-deploy-blue-5b66b98c9-cm7kq                      1/1     Running   0          17m
+default       pod/nginx-deploy-green-6c7b8b778b-z9sgq                    1/1     Running   0          17m
+default       pod/nginx-deploy-main-5844dccccb-xdxlj                     1/1     Running   0          35m
+kube-system   pod/azure-ip-masq-agent-2hg7q                              1/1     Running   0          42m
+kube-system   pod/coredns-autoscaler-5b6cbd75d7-6gj2p                    1/1     Running   0          43m
+kube-system   pod/coredns-b94d8b788-jspcf                                1/1     Running   0          43m
+kube-system   pod/coredns-b94d8b788-x6snx                                1/1     Running   0          41m
+kube-system   pod/kube-proxy-z5x9l                                       1/1     Running   0          42m
+kube-system   pod/metrics-server-77c8679d7d-s8zvt                        1/1     Running   1          43m
+kube-system   pod/tunnelfront-b56bd7cbd-lnv45                            1/1     Running   0          43m
+
+NAMESPACE     NAME                                            TYPE           CLUSTER-IP     EXTERNAL-IP    PORT(S)                      AGE
+default       service/ingress-nginx-ingress-controller        LoadBalancer   10.0.61.0      140.191.112.140   80:30658/TCP,443:31096/TCP   40m
+default       service/ingress-nginx-ingress-default-backend   ClusterIP      10.0.254.39    <none>         80/TCP                       40m
+default       service/kubernetes                              ClusterIP      10.0.0.1       <none>         443/TCP                      43m
+default       service/nginx-deploy-blue                       ClusterIP      10.0.165.187   <none>         80/TCP                       29m
+default       service/nginx-deploy-green                      ClusterIP      10.0.9.190     <none>         80/TCP                       29m
+default       service/nginx-deploy-main                       ClusterIP      10.0.17.121    <none>         80/TCP                       29m
+kube-system   service/kube-dns                                ClusterIP      10.0.0.10      <none>         53/UDP,53/TCP                43m
+kube-system   service/metrics-server                          ClusterIP      10.0.63.229    <none>         443/TCP                      43m
+
+NAMESPACE     NAME                                 DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR                 AGE
+kube-system   daemonset.apps/azure-ip-masq-agent   1         1         1       1            1           beta.kubernetes.io/os=linux   43m
+kube-system   daemonset.apps/kube-proxy            1         1         1       1            1           beta.kubernetes.io/os=linux   43m
+
+NAMESPACE     NAME                                                    READY   UP-TO-DATE   AVAILABLE   AGE
+default       deployment.apps/ingress-nginx-ingress-controller        1/1     1            1           40m
+default       deployment.apps/ingress-nginx-ingress-default-backend   1/1     1            1           40m
+default       deployment.apps/nginx-deploy-blue                       1/1     1            1           36m
+default       deployment.apps/nginx-deploy-green                      1/1     1            1           36m
+default       deployment.apps/nginx-deploy-main                       1/1     1            1           35m
+kube-system   deployment.apps/coredns                                 2/2     2            2           43m
+kube-system   deployment.apps/coredns-autoscaler                      1/1     1            1           43m
+kube-system   deployment.apps/metrics-server                          1/1     1            1           43m
+kube-system   deployment.apps/tunnelfront                             1/1     1            1           43m
+
+NAMESPACE     NAME                                                             DESIRED   CURRENT   READY   AGE
+default       replicaset.apps/ingress-nginx-ingress-controller-547f4c7d8b      1         1         1       40m
+default       replicaset.apps/ingress-nginx-ingress-default-backend-c9b59c85   1         1         1       40m
+default       replicaset.apps/nginx-deploy-blue-5b66b98c9                      1         1         1       17m
+default       replicaset.apps/nginx-deploy-blue-9784c656c                      0         0         0       36m
+default       replicaset.apps/nginx-deploy-green-6c7b8b778b                    1         1         1       17m
+default       replicaset.apps/nginx-deploy-green-786b88cb6                     0         0         0       36m
+default       replicaset.apps/nginx-deploy-main-5844dccccb                     1         1         1       35m
+kube-system   replicaset.apps/coredns-autoscaler-5b6cbd75d7                    1         1         1       43m
+kube-system   replicaset.apps/coredns-b94d8b788                                2         2         2       43m
+kube-system   replicaset.apps/metrics-server-77c8679d7d                        1         1         1       43m
+kube-system   replicaset.apps/tunnelfront-b56bd7cbd                            1         1         1       43m
+----
+
+== Test the env
+* first check the LB IP address in this example it is  "*140.191.112.140*"
+* if you did not change anything in your manifests the default URI are:
+** green.nginx.remo.io
+** blue.nginx.remo.io
+** nginx.remo.io
+* first set your /etc/hosts (Linux or Mac) like:
+** 140.191.112.140  green.nginx.remo.io blue.nginx.remo.io nginx.remo.io
+
+== Check the site now
+In your mac you can install httpie with brew
+
+----
+brew install httpie
+----
+
+.Welcome to Nginx Page is displayed
+----
+➜ http nginx.remo.io
+HTTP/1.1 200 OK
+Connection: keep-alive
+Content-Encoding: gzip
+Content-Type: text/html
+Date: Thu, 11 Mar 2021 03:30:52 GMT
+ETag: W/"602beb5e-264"
+Last-Modified: Tue, 16 Feb 2021 15:57:18 GMT
+Server: nginx/1.19.1
+Transfer-Encoding: chunked
+Vary: Accept-Encoding
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+----
+
+
+=== Now test the green and the blue
+.Blue output
+----
+➜ http blue.nginx.remo.io
+HTTP/1.1 200 OK
+Accept-Ranges: bytes
+Connection: keep-alive
+Content-Length: 55
+Content-Type: text/html
+Date: Thu, 11 Mar 2021 03:33:53 GMT
+ETag: "604985c8-37"
+Last-Modified: Thu, 11 Mar 2021 02:51:52 GMT
+Server: nginx/1.19.1
+
+<h1>Ciao, my text is <font color=blue>BLUE</font></h1>
+----
+
+.Green output
+----
+➜ http green.nginx.remo.io
+HTTP/1.1 200 OK
+Accept-Ranges: bytes
+Connection: keep-alive
+Content-Length: 57
+Content-Type: text/html
+Date: Thu, 11 Mar 2021 03:35:29 GMT
+ETag: "604985c2-39"
+Last-Modified: Thu, 11 Mar 2021 02:51:46 GMT
+Server: nginx/1.19.1
+
+<h1>Ciao, my text is <font color=green>GREEN</font></h1>
+----
+
+
+=== Credits for the initial code base goes to *learnk8s*
+The base idea came from  https://learnk8s.io/[learnk8s].

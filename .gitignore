@@ -1,0 +1,4 @@
+*.tfstate
+*azurek8s
+.terraform
+*lock.hcl

@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+annotations:
+    kubernetes.io/ingress.class: nginx
+  name: ingress-resource-2
+spec:
+  rules:
+  - host: nginx.remo.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-deploy-main
+            port:
+              number: 80
+  - host: blue.nginx.remo.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-deploy-blue
+            port:
+              number: 80
+  - host: green.nginx.remo.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-deploy-green
+            port:
+              number: 80
