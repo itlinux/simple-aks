@@ -44,22 +44,22 @@ You can add the credentials to your kubeconfig or temporarily use the file as yo
 ----
 
 
-Set your kubectl alias to k8s
+Set your kubectl alias to k
 
 ----
-➜ alias k8="kubectl"
+➜ alias k="kubectl"
 ----
 
 You can verify that you can connect to the cluster with:
 
 .Get Nodes
 ----
-➜ k8 get nodes
+➜ k get nodes
 ----
 
 .Check Kubernetes version
 ----
-➜ k8 version --short
+➜ k version --short
 Client Version: v1.19.3
 Server Version: v1.19.7
 ----
@@ -86,12 +86,12 @@ Now apply the manifests
 
 .Manifests
 ----
-➜ k8 apply -f kube-manifests/nginx-deploy-green.yml -f kube-manifests/nginx-deploy-blue.yml -f kube-manifests/nginx-deploy-main.yml
+➜ k apply -f kube-manifests/nginx-deploy-green.yml -f kube-manifests/nginx-deploy-blue.yml -f kube-manifests/nginx-deploy-main.yml
 ----
 
 .Add the ingress
 ----
-➜ k8 apply -f kube-manifests/ingress-resource-2.yml
+➜ k apply -f kube-manifests/ingress-resource-2.yml
 ----
 
 .Check ingress
@@ -103,21 +103,21 @@ ingress-resource-2   <none>   nginx.remo.io,blue.nginx.remo.io,green.nginx.remo.
 
 .Expose the pods
 ----
-➜ k8 expose deploy nginx-deploy-main --port 80
-➜ k8 expose deploy nginx-deploy-green --port 80
-➜ k8 expose deploy nginx-deploy-blue --port 80
+➜ k expose deploy nginx-deploy-main --port 80
+➜ k expose deploy nginx-deploy-green --port 80
+➜ k expose deploy nginx-deploy-blue --port 80
 ----
 
 Once applied the manifests check the nodes, services, and deployments.
 
 .Fastest way to get all the data needed
 ----
-➜ k8 get all -A
+➜ k get all -A
 ----
 
 .Output
 ----
-➜ k8 get all -A
+➜ k get all -A
 NAMESPACE     NAME                                                       READY   STATUS    RESTARTS   AGE
 default       pod/ingress-nginx-ingress-controller-547f4c7d8b-hlhws      1/1     Running   0          40m
 default       pod/ingress-nginx-ingress-default-backend-c9b59c85-kr782   1/1     Running   0          40m
@@ -274,7 +274,7 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/a
 
 .Run the Proxy (from one terminal)
 ----
-➜ k8 proxy
+➜ k proxy
 Starting to serve on 127.0.0.1:8001
 ----
 
@@ -293,7 +293,7 @@ NOTE: The URL above it one string.
 Paste the token and you will have the Dashboard which shows you services, namespaces, CRDs if you have some etc....
 
 
-=== Credits for the initial code base goes to *learnk8s*
+=== Credits for the some snipped code base goes to *learnk8s*
 The base idea came from  https://learnk8s.io/[learnk8s].
 
 
