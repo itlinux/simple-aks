@@ -296,4 +296,8 @@ Paste the token and you will have the Dashboard which shows you services, namesp
 The base idea came from  https://learnk8s.io/[learnk8s].
 
 
-
+=== TERRAFORM OUTPUT
+Use the following to get the config for your k8s
+----
+terraform output -json kube_config | jq -r .
+----

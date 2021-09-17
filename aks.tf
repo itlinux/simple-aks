@@ -1,3 +1,6 @@
+provider "kubernetes" {
+  config_path = "./config-aks"
+}
 provider "azurerm" {
   features {}
 }
