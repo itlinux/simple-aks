@@ -4,7 +4,6 @@ provider "helm" {
     client_key             = base64decode(azurerm_kubernetes_cluster.cluster.kube_config[0].client_key)
     client_certificate     = base64decode(azurerm_kubernetes_cluster.cluster.kube_config[0].client_certificate)
     cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.cluster.kube_config[0].cluster_ca_certificate)
-    load_config_file       = false
   }
 }
 
@@ -34,8 +33,13 @@ resource "azurerm_kubernetes_cluster" "clusterhelm" {
 }
 
 resource "helm_release" "ingress" {
-  name  = "ingress"
-  chart = "stable/nginx-ingress"
+  name       = "ingress"
+  repository = "https://charts.bitnami.com/bitnami"
+  chart      = "nginx-ingress-controller"
+  #chart      = "stable/nginx-ingress"
+  namespace  = "kube-system"
+  timeout    = 1800
+  version    = "7.6.21"
 
   set {
     name  = "rbac.create"

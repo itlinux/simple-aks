@@ -7,7 +7,7 @@ variable "my_tags" {
     default = {
         owner : "Remo Mattei"
         Name: "Remo Mattei",
-        department: "F5 SA"
+        department: "SA"
         team: "SA"
         app: "AKS"
         type  : "AKS Deployment"
@@ -48,5 +48,5 @@ variable name_cluster {
 }
 variable k8s_version {
   description = "K8s version to use"
-  default = "1.19.7"
+  default = "1.21.2"
 }
